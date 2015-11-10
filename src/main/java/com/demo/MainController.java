@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Controller;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 @Controller
@@ -26,6 +28,9 @@ public class MainController {
     private React react;
 
     private ObjectMapper mapper;
+    
+    @Autowired
+    SamclubService samclubService;
 
     @Autowired
     public MainController(EmployeeService service) {
@@ -35,7 +40,8 @@ public class MainController {
     }
 
     @RequestMapping("/")
-    public String index(Map<String, Object> model,HttpSession session) throws Exception {
+    public String index(Map<String, Object> model,HttpServletRequest request,HttpSession session) throws Exception {
+    	request.getCookies();
     	RestTemplate restTemplate = new RestTemplate();
     	
     	HttpHeaders requestHeaders = new HttpHeaders();
@@ -43,15 +49,10 @@ public class MainController {
     	System.out.println(requestHeaders);
     	
     	HttpEntity requestEntity = new HttpEntity(null, requestHeaders);
+    	callSamclubApis(requestEntity);
     	
-    	ResponseEntity rssResponse = restTemplate.exchange(
-    	    "http://m.samsclub.com/api/rfi/povs",
-    	    HttpMethod.GET,
-    	    requestEntity,Object.class);
- 
-    	System.out.println( rssResponse.getBody());
         List<Employee> employees = service.getEmployees();
-        runAPIs();
+        //runAPIs();
         String employeeList = react.renderEmployeeList(employees);
         String data = mapper.writeValueAsString(employeeList);
         model.put("content", employeeList);
@@ -59,6 +60,35 @@ public class MainController {
         return "index";
     }
 
+    public void callSamclubApis(HttpEntity requestEntity){
+    	 long start = System.currentTimeMillis();
+
+         // Kick of multiple, asynchronous lookups
+         Future<Object> page1 = null;
+         Future<Object> page2 = null;
+         Future<Object> page3 = null;
+		try {
+			page1 = samclubService.makeSamsClubApiCalls(requestEntity,"categoryInfo1");
+			 page2 = samclubService.makeSamsClubApiCalls(requestEntity,"categoryInfo2");
+	         page3 = samclubService.makeSamsClubApiCalls(requestEntity,"pivos");
+	      // Wait until they are all done
+	         while (!(page1.isDone() && page2.isDone() && page3.isDone())) {
+	             Thread.sleep(10); //10-millisecond pause between each check
+	         }
+
+
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+         
+         
+         // Print results, including elapsed time
+         System.out.println("Elapsed time: " + (System.currentTimeMillis() - start));
+    
+    }
+    
+    
     @Autowired
     GitHubLookupService gitHubLookupService;
 
