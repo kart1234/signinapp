@@ -18,6 +18,7 @@ public class React {
             try {
                 nashornScriptEngine.eval(read("static/nashorn-polyfill.js"));
                 nashornScriptEngine.eval(read("static/vendor/react.js"));
+                nashornScriptEngine.eval(read("static/server-bundle.js"));
                 nashornScriptEngine.eval(read("static/vendor/showdown.min.js"));
                 nashornScriptEngine.eval(read("static/employeeList.js"));
             } catch (ScriptException e) {

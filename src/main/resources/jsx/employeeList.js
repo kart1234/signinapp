@@ -1,5 +1,3 @@
-var converter = new Showdown.converter();
-
 var CommentForm = React.createClass({
     handleSubmit: function (e) {
         e.preventDefault();
@@ -92,6 +90,7 @@ var renderClient = function (employeeList) {
 
 var renderServer = function (employeeList) {
     var data = Java.from(employeeList);
+    console.log("hello sdfdsfgfgdfgdfgfgdfgdfgfdgfdhgfhfh");
     return React.renderToString(
         <EmployeeList data={data} url='employees' pollInterval={5000} />
     );
