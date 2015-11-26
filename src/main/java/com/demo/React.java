@@ -18,9 +18,8 @@ public class React {
             try {
                 nashornScriptEngine.eval(read("static/nashorn-polyfill.js"));
                 nashornScriptEngine.eval(read("static/vendor/react.js"));
-                nashornScriptEngine.eval(read("static/server-bundle.js"));
-                nashornScriptEngine.eval(read("static/vendor/showdown.min.js"));
-                nashornScriptEngine.eval(read("static/employeeList.js"));
+                nashornScriptEngine.eval(read("static/vendor/formsy-react.js"));
+                nashornScriptEngine.eval(read("static/login.js"));
             } catch (ScriptException e) {
                 throw new RuntimeException(e);
             }
@@ -28,9 +27,9 @@ public class React {
         }
     };
 
-    public  String renderEmployeeList(List<Employee> employee) {
+    public  String renderLoginPage() {
         try {
-            Object invokeFunction = engineHolder.get().invokeFunction("renderServer", employee);
+            Object invokeFunction = engineHolder.get().invokeFunction("renderServer");
 			Object html = invokeFunction;
             return String.valueOf(html);
         }
